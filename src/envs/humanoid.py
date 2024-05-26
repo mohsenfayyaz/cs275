@@ -112,7 +112,7 @@ class CustomHumanoidEnv(HumanoidEnv):
         # ADDED {
         angle = self.np_random.uniform(0, 2 * np.pi)
         self.target_velocity = np.array([np.cos(angle), np.sin(angle)])
-        print("target_velocity:", self.target_velocity)
+        # print("target_velocity:", self.target_velocity)
         # }
         return observation
 
@@ -128,8 +128,8 @@ class CustomHumanoidEnv(HumanoidEnv):
 
         # ADDED {
         cos_sim = cosine_similarity(xy_velocity.reshape(1, -1), self.target_velocity.reshape(1, -1))[0][0]
-        magnitude_diff = (np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity)) ** 2
-        velocity_reward = 5 * cos_sim + 0.5 * magnitude_diff
+        magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
+        velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
         forward_reward = self._forward_reward_weight * velocity_reward
         # }
         # forward_reward = self._forward_reward_weight * x_velocity
@@ -151,7 +151,7 @@ class CustomHumanoidEnv(HumanoidEnv):
             "y_velocity": y_velocity,
             "forward_reward": forward_reward,
         }
-
+        # print(info, reward, cos_sim, magnitude_diff)
         if self.render_mode == "human":
             self.render()
         return observation, reward, terminated, False, info
