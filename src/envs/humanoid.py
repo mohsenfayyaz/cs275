@@ -12,7 +12,7 @@ class CustomHumanoidEnv(HumanoidEnv):
             forward_reward_weight=1.25,
             ctrl_cost_weight=0.1,
             healthy_reward=5.0,
-            terminate_when_unhealthy=False,
+            terminate_when_unhealthy=True,
             healthy_z_range=(0.5, 3.0),
             reset_noise_scale=5e-2,
             exclude_current_positions_from_observation=True,
@@ -31,7 +31,7 @@ class CustomHumanoidEnv(HumanoidEnv):
         )
 
         # ADDED {
-        self.target_velocity = np.array([-1.0, 1.0])
+        self.target_velocity = np.array([0.0, 0.0])
         # }
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
@@ -112,6 +112,7 @@ class CustomHumanoidEnv(HumanoidEnv):
         # ADDED {
         angle = self.np_random.uniform(0, 2 * np.pi)
         self.target_velocity = np.array([np.cos(angle), np.sin(angle)])
+        self.target_velocity = np.array([0, 1])
         # print("target_velocity:", self.target_velocity)
         # }
         return observation

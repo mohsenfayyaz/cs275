@@ -15,6 +15,8 @@ def train(
         epochs=1000,
         saving_interval=100,
         time_steps=1000,
+        learning_rate=0.0003,
+        batch_size=64,
         output_dir="checkpoints/",
 ) -> None:
     """
@@ -26,6 +28,8 @@ def train(
     :param saving_interval: Save model after every saving_interval epochs
     :param time_steps: each epoch's time_steps of learning
     :param output_dir: Directory for saving checkpoints
+    :param learning_rate:
+    :param batch_size:
     :return:
     """
     print("Training")
@@ -33,10 +37,13 @@ def train(
     # env = make_vec_env(environment, n_envs=4)
 
     if checkpoint_dir is None:
-        model = PPO("MlpPolicy", env, verbose=0, tensorboard_log="./tensorboard/")
+        model = PPO("MlpPolicy", env, verbose=0, learning_rate=learning_rate, batch_size=batch_size,
+                    tensorboard_log="./tensorboard/")
         start_epoch = 0
     else:
-        model = PPO.load(checkpoint_dir)
+        print("Continuing Training from:", checkpoint_dir)
+        model = PPO.load(checkpoint_dir, learning_rate=learning_rate, batch_size=batch_size,
+                         tensorboard_log="./tensorboard/")
         model.set_env(env)
         start_epoch = int(checkpoint_dir.split("/")[-1].replace(".zip", ""))
 

@@ -1,5 +1,4 @@
-/src/checkpoints/
-/src/checkpoints_humanoid/
 /venv/
-/checkpoints_humanoid/
 /tensorboard/
+/checkpoints*/
+/src/checkpoints*/
