@@ -1,0 +1,8 @@
+# pip install gymnasium[mujoco]
+# pip install stable-baselines3[extra]
+# pip install mujoco==2.3.7
+gymnasium[mujoco]
+stable-baselines3[extra]
+mujoco==2.3.7
+tqdm
+numpy
