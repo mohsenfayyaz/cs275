@@ -33,7 +33,7 @@ def train(
     # env = make_vec_env(environment, n_envs=4)
 
     if checkpoint_dir is None:
-        model = PPO("MlpPolicy", env, verbose=0)
+        model = PPO("MlpPolicy", env, verbose=0, tensorboard_log="./tensorboard/")
         start_epoch = 0
     else:
         model = PPO.load(checkpoint_dir)
