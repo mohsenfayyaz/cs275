@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 import gymnasium as gym
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, SAC
 import envs  # Register new envs
 
 
@@ -13,10 +13,16 @@ def test(
         checkpoint_dir: str = None,
         steps=500,
         step_callback=None,
-        never_reset=False
+        never_reset=False,
+        algorithm="ppo",  # ppo, sac
 ):
-    print("Testing")
-    model = PPO.load(checkpoint_dir)
+    print(f"Testing {algorithm}")
+    algo_map = {
+        "ppo": PPO,
+        "sac": SAC
+    }
+    algo = algo_map[algorithm]
+    model = algo.load(checkpoint_dir)
     env = gym.make(environment_id, render_mode="human")
     observation, info = env.reset()
     # print("demoing with direction:", env.target_direction)

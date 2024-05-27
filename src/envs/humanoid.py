@@ -13,8 +13,8 @@ class CustomHumanoidEnv(HumanoidEnv):
             ctrl_cost_weight=0.1,
             healthy_reward=5.0,
             terminate_when_unhealthy=True,
-            healthy_z_range=(1.0, 3.0),
-            reset_noise_scale=5e-2,
+            healthy_z_range=(1.0, 2.0),
+            reset_noise_scale=1e-2,
             exclude_current_positions_from_observation=True,
             **kwargs,
     ):
@@ -31,7 +31,7 @@ class CustomHumanoidEnv(HumanoidEnv):
         )
 
         # ADDED {
-        self.target_velocity = np.array([0.0, 0.0])
+        self.target_direction = np.array([0.0, 0.0])
         # }
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
@@ -91,7 +91,7 @@ class CustomHumanoidEnv(HumanoidEnv):
                 actuator_forces,
                 external_contact_forces,
                 # ADDED
-                self.target_velocity,
+                self.target_direction,
             )
         )
 
@@ -110,9 +110,15 @@ class CustomHumanoidEnv(HumanoidEnv):
         observation = self._get_obs()
 
         # ADDED {
-        angle = self.np_random.uniform(0, 2 * np.pi)
-        self.target_velocity = np.array([np.cos(angle), np.sin(angle)])
-        self.target_velocity = np.array([0, 1])
+        DIR = {
+            0: [1, 0],
+            1: [-1, 0],
+            2: [0, 1],
+            3: [0, -1],
+            # 4: [0, 0],
+        }
+        self.target_direction = np.array(DIR[np.random.choice(np.arange(4))])
+        print("Reset Direction:", self.target_direction)
         # print("target_velocity:", self.target_velocity)
         # }
         return observation
@@ -132,8 +138,9 @@ class CustomHumanoidEnv(HumanoidEnv):
         # magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
         # velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
         # forward_reward = self._forward_reward_weight * velocity_reward
+        forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][0]
         # }
-        forward_reward = self._forward_reward_weight * x_velocity
+        # forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward
 
         rewards = forward_reward + healthy_reward

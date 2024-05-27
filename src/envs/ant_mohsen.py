@@ -27,7 +27,7 @@ class ControllableAntEnvMohsen(AntEnv):
             terminate_when_unhealthy=True,
             healthy_z_range=(0.2, 1.0),
             contact_force_range=(-1.0, 1.0),
-            reset_noise_scale=0.3,
+            reset_noise_scale=0.2,
             exclude_current_positions_from_observation=True,
             **kwargs,
     ):

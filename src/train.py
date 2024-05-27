@@ -3,7 +3,7 @@ import argparse
 from tqdm import tqdm
 import gymnasium as gym
 from pathlib import Path
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, SAC
 import envs  # Register new envs
 from test import test
 
@@ -18,9 +18,10 @@ def train(
         learning_rate=0.0003,
         batch_size=64,
         output_dir="checkpoints/",
+        algorithm="ppo",  # ppo, sac
 ) -> None:
     """
-    Train PPO on environment_id
+    Train PPO/SAC on environment_id
     :param environment_id: refer to registered ids in src/envs/__init__.py
     :param checkpoint_dir: Continue training from checkpoint e.x. "checkpoints/10". Start a new training if None.
     :param show_demo: Show visual demo on saving
@@ -30,19 +31,26 @@ def train(
     :param output_dir: Directory for saving checkpoints
     :param learning_rate:
     :param batch_size:
+    :param algorithm:
     :return:
     """
-    print("Training")
+    print(f"Training {algorithm}")
     env = gym.make(environment_id)
     # env = make_vec_env(environment, n_envs=4)
 
+    algo_map = {
+        "ppo": PPO,
+        "sac": SAC
+    }
+    algo = algo_map[algorithm]
+
     if checkpoint_dir is None:
-        model = PPO("MlpPolicy", env, verbose=0, learning_rate=learning_rate, batch_size=batch_size,
+        model = algo("MlpPolicy", env, verbose=0, learning_rate=learning_rate, batch_size=batch_size,
                     tensorboard_log="./tensorboard/")
         start_epoch = 0
     else:
         print("Continuing Training from:", checkpoint_dir)
-        model = PPO.load(checkpoint_dir, learning_rate=learning_rate, batch_size=batch_size,
+        model = algo.load(checkpoint_dir, learning_rate=learning_rate, batch_size=batch_size,
                          tensorboard_log="./tensorboard/")
         model.set_env(env)
         start_epoch = int(checkpoint_dir.split("/")[-1].replace(".zip", ""))
@@ -55,4 +63,4 @@ def train(
             model.save(output_path)
             print("Saved Model:", output_path)
             if show_demo:
-                test(environment_id, output_path)
+                test(environment_id, output_path, algorithm=algorithm)
