@@ -1,5 +1,7 @@
 import os
 import argparse
+
+import numpy as np
 from tqdm import tqdm
 import gymnasium as gym
 from stable_baselines3 import PPO
@@ -10,6 +12,8 @@ def test(
         environment_id: str,
         checkpoint_dir: str = None,
         steps=500,
+        step_callback=None,
+        never_reset=False
 ):
     print("Testing")
     model = PPO.load(checkpoint_dir)
@@ -18,9 +22,12 @@ def test(
     # print("demoing with direction:", env.target_direction)
     for _ in range(steps):
         # action = env.action_space.sample()
+        if step_callback is not None:
+            env, model = step_callback(env, model)
         action, _states = model.predict(observation, deterministic=False)
         observation, reward, terminated, truncated, info = env.step(action)
-        if terminated or truncated:
+        # print(observation[-2:], env.target_direction)
+        if (terminated or truncated) and not never_reset:
             observation, info = env.reset()
             # print("demoing with direction:", env.target_direction)
     env.close()

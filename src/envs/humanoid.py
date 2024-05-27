@@ -13,7 +13,7 @@ class CustomHumanoidEnv(HumanoidEnv):
             ctrl_cost_weight=0.1,
             healthy_reward=5.0,
             terminate_when_unhealthy=True,
-            healthy_z_range=(0.5, 3.0),
+            healthy_z_range=(1.0, 3.0),
             reset_noise_scale=5e-2,
             exclude_current_positions_from_observation=True,
             **kwargs,
@@ -128,12 +128,12 @@ class CustomHumanoidEnv(HumanoidEnv):
         ctrl_cost = self.control_cost(action)
 
         # ADDED {
-        cos_sim = cosine_similarity(xy_velocity.reshape(1, -1), self.target_velocity.reshape(1, -1))[0][0]
-        magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
-        velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
-        forward_reward = self._forward_reward_weight * velocity_reward
+        # cos_sim = cosine_similarity(xy_velocity.reshape(1, -1), self.target_velocity.reshape(1, -1))[0][0]
+        # magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
+        # velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
+        # forward_reward = self._forward_reward_weight * velocity_reward
         # }
-        # forward_reward = self._forward_reward_weight * x_velocity
+        forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward
 
         rewards = forward_reward + healthy_reward
