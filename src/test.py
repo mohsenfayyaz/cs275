@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 import gymnasium as gym
 from stable_baselines3 import PPO, SAC
-import envs  # Register new envs
+import src.envs  # Register new envs
 
 
 def test(

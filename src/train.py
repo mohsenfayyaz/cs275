@@ -4,8 +4,8 @@ from tqdm import tqdm
 import gymnasium as gym
 from pathlib import Path
 from stable_baselines3 import PPO, SAC
-import envs  # Register new envs
-from test import test
+import src.envs  # Register new envs
+from src.test import test
 
 
 def train(
