@@ -14,7 +14,7 @@ def test(
         steps=500,
         step_callback=None,
         never_reset=False,
-        algorithm="ppo",  # ppo, sac
+        algorithm="sac",  # ppo, sac
 ):
     print(f"Testing {algorithm}")
     algo_map = {

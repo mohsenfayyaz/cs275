@@ -18,7 +18,7 @@ def train(
         learning_rate=0.0003,
         batch_size=64,
         output_dir="checkpoints/",
-        algorithm="ppo",  # ppo, sac
+        algorithm="sac",  # ppo, sac
 ) -> None:
     """
     Train PPO/SAC on environment_id
