@@ -118,10 +118,13 @@ class CustomHumanoidEnv(HumanoidEnv):
             # 4: [0, 0],
         }
         self.target_direction = np.array(DIR[np.random.choice(np.arange(4))])
-        print("Reset Direction:", self.target_direction)
+        # print("Reset Direction:", self.target_direction)
         # print("target_velocity:", self.target_velocity)
         # }
         return observation
+
+    def set_target(self, t):
+        self.target_direction = t
 
     def step(self, action):
         xy_position_before = mass_center(self.model, self.data)
