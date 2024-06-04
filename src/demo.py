@@ -6,7 +6,7 @@ from src.test import test
 
 
 def test_human():
-    global direction, model, MODEL_MAP, KEYBOARD_MAP
+    global direction, model, reset, MODEL_MAP, KEYBOARD_MAP
     MODEL_MAP = {
         "1": SAC.load("final_checkpoints/3400_stop.zip"),
         "2": SAC.load("final_checkpoints/2700_walk.zip"),
@@ -21,6 +21,7 @@ def test_human():
     }
     direction = np.array([1, 0])
     model = MODEL_MAP["1"]
+    reset = False
 
     def set_direction(key: keyboard.KeyboardEvent):
         global direction
@@ -32,14 +33,22 @@ def test_human():
         model = MODEL_MAP[key.name]
         print(model)
 
+    def set_reset(key: keyboard.KeyboardEvent):
+        global reset
+        reset = True
+
     for k in KEYBOARD_MAP.keys():
         keyboard.on_press_key(k, set_direction)
     for k in MODEL_MAP.keys():
         keyboard.on_press_key(k, set_model)
+    keyboard.on_press_key("0", set_reset)
 
     def callback(env, model_):
-        global direction, model
+        global direction, model, reset
         env.unwrapped.set_target(direction)
+        if reset:
+            env.reset_model()
+            reset = False
         return env, model
 
     test(environment_id="CustomHumanoid-v4", checkpoint_dir="checkpoints_humanoid/2700.zip", steps=20000,
