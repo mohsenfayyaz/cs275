@@ -3,15 +3,16 @@ from src.train import train
 from src.test import test
 import keyboard
 
+train(
+    environment_id="CustomHumanoid-v4", epochs=20000, saving_interval=10, show_demo=True,
+    output_dir="checkpoints_humanoid_fast/", learning_rate=3e-4, batch_size=256, algorithm="sac",
+    checkpoint_dir="checkpoints_humanoid/2700.zip", time_steps=2000,
+)
+
 # train(
-#       environment_id="CustomHumanoid-v4", epochs=20000, saving_interval=100, show_demo=True,
-#       output_dir="checkpoints_humanoid_ppo/", learning_rate=3e-4, batch_size=256, algorithm="ppo",
-#       # checkpoint_dir="checkpoints_humanoid_y/2900.zip"
-# )
-# train(
-#     environment_id="CustomHumanoid-v4", epochs=20000, saving_interval=100, show_demo=True,
-#     output_dir="checkpoints_humanoid/", learning_rate=3e-4, batch_size=256, algorithm="sac",
-#     checkpoint_dir="checkpoints_humanoid/500.zip"
+#     environment_id="CustomHumanoidStandup-v4", epochs=20000, saving_interval=50, show_demo=True,
+#     output_dir="checkpoints_humanoid_standup/", learning_rate=3e-4, batch_size=256, algorithm="sac",
+#     # checkpoint_dir="checkpoints_humanoid_standup/700.zip"
 # )
 
 
@@ -51,7 +52,8 @@ def test_human():
     test(environment_id="CustomHumanoid-v4", checkpoint_dir="checkpoints_humanoid/2700.zip", steps=20000,
          step_callback=callback, never_reset=True, algorithm="sac")
 
-test_human()
+
+# test_human()
 
 def test_ant():
     global direction

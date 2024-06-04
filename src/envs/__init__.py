@@ -24,4 +24,10 @@ register(
     max_episode_steps=1000,
 )
 
+register(
+    id="CustomHumanoidStandup-v4",
+    entry_point="src.envs.humanoid_standup:CustomHumanoidStandupEnv",
+    max_episode_steps=1000,
+)
+
 print("Registered Environments")

@@ -141,7 +141,7 @@ class CustomHumanoidEnv(HumanoidEnv):
         # magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
         # velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
         # forward_reward = self._forward_reward_weight * velocity_reward
-        forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][0]
+        forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][0] + np.linalg.norm(xy_velocity)
         # }
         # forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward

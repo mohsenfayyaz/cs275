@@ -12,5 +12,5 @@ python -m tensorboard.main --logdir=./tensorboard/
 
 ```shell
 # In cs275/
-python -m src.mohsen
+python -m src.demo
 ```
