@@ -8,10 +8,15 @@ from src.test import test
 def test_human():
     global direction, model, reset, MODEL_MAP, KEYBOARD_MAP
     MODEL_MAP = {
-        "1": SAC.load("final_checkpoints/3400_stop.zip"),
+        "1": SAC.load("final_checkpoints/4000_stop.zip"),
         "2": SAC.load("final_checkpoints/2700_walk.zip"),
         "3": SAC.load("final_checkpoints/3600_walk_fast.zip"),
-        "7": SAC.load("final_checkpoints/6400_crouch.zip"),
+        "7": SAC.load("final_checkpoints/4000_walk_fast2.zip"),
+        "9": SAC.load("final_checkpoints/4200_walk_fast3.zip"),
+        # "1": SAC.load("checkpoints_humanoid/0.zip"),
+        # "2": SAC.load("checkpoints_humanoid/500.zip"),
+        # "3": SAC.load("checkpoints_humanoid/1000.zip"),
+        # "9": SAC.load("checkpoints_humanoid/2700.zip"),
     }
     KEYBOARD_MAP = {
         "8": [0, 1],

@@ -2,6 +2,7 @@ import os
 import argparse
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 import gymnasium as gym
 from stable_baselines3 import PPO, SAC
@@ -15,8 +16,10 @@ def test(
         step_callback=None,
         never_reset=False,
         algorithm="sac",  # ppo, sac
+        save_predictions=False,
 ):
     print(f"Testing {algorithm}")
+    saved_preds = []
     algo_map = {
         "ppo": PPO,
         "sac": SAC
@@ -36,4 +39,7 @@ def test(
         if (terminated or truncated) and not never_reset:
             observation, info = env.reset()
             # print("demoing with direction:", env.target_direction)
+        if save_predictions:
+            saved_preds.append(action)
+            pd.DataFrame(saved_preds).to_json("predictions.json")
     env.close()

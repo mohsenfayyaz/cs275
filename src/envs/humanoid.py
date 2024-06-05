@@ -2,8 +2,15 @@ import numpy as np
 from gymnasium import utils
 from gymnasium.spaces import Box
 from gymnasium.envs.mujoco import MujocoEnv
-from gymnasium.envs.mujoco.humanoid_v4 import HumanoidEnv, mass_center, DEFAULT_CAMERA_CONFIG
+from gymnasium.envs.mujoco.humanoid_v4 import HumanoidEnv, mass_center  # , DEFAULT_CAMERA_CONFIG
 from sklearn.metrics.pairwise import cosine_similarity
+
+DEFAULT_CAMERA_CONFIG = {
+    "trackbodyid": 1,
+    "distance": 4.0,
+    "lookat": np.array((0.0, 0.0, 0.5)),
+    "elevation": -0.0,
+}
 
 
 class CustomHumanoidEnv(HumanoidEnv):
@@ -141,7 +148,8 @@ class CustomHumanoidEnv(HumanoidEnv):
         # magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
         # velocity_reward = 5 * cos_sim - 0.5 * magnitude_diff
         # forward_reward = self._forward_reward_weight * velocity_reward
-        forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][0] + np.linalg.norm(xy_velocity)
+        forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][
+            0] + np.linalg.norm(xy_velocity)
         # }
         # forward_reward = self._forward_reward_weight * x_velocity
         healthy_reward = self.healthy_reward
