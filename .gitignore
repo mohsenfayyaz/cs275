@@ -2,3 +2,5 @@
 /tensorboard/
 /checkpoints*/
 /src/checkpoints*/
+/build/
+/demo.spec
