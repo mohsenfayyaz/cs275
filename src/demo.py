@@ -15,6 +15,7 @@ def test_human():
         "7": SAC.load("final_checkpoints/4200_walk_fast3.zip"),
         # "7": SAC.load("final_checkpoints/5900_walk_fast4.zip"),
         "9": SAC.load("final_checkpoints/6400_walk_crazy.zip"),
+        "`": SAC.load("final_checkpoints/12500_crouch.zip"),
         # "1": SAC.load("checkpoints_humanoid/0.zip"),
         # "2": SAC.load("checkpoints_humanoid/500.zip"),
         # "3": SAC.load("checkpoints_humanoid/1000.zip"),
@@ -58,7 +59,7 @@ def test_human():
             reset = False
         return env, model
 
-    test(environment_id="CustomHumanoid-v4", checkpoint_dir="checkpoints_humanoid/2700.zip", steps=1000000,
+    test(environment_id="CustomHumanoid-v4", checkpoint_dir="final_checkpoints/2700_walk.zip", steps=1000000,
          step_callback=callback, never_reset=True, algorithm="sac")
 
 
