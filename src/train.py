@@ -4,8 +4,9 @@ from tqdm import tqdm
 import gymnasium as gym
 from pathlib import Path
 from stable_baselines3 import PPO, SAC
-import envs  # Register new envs
-from test import test
+from stable_baselines3.common.monitor import Monitor
+import src.envs  # Register new envs
+from src.test import test
 
 
 def train(
@@ -19,6 +20,7 @@ def train(
         batch_size=64,
         output_dir="checkpoints/",
         algorithm="ppo",  # ppo, sac
+        tb_log_name=None,
 ) -> None:
     """
     Train PPO/SAC on environment_id
@@ -36,6 +38,7 @@ def train(
     """
     print(f"Training {algorithm}")
     env = gym.make(environment_id)
+    env = Monitor(env)
     # env = make_vec_env(environment, n_envs=4)
 
     algo_map = {
@@ -57,7 +60,7 @@ def train(
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     for e in tqdm(range(start_epoch, start_epoch + epochs + 1)):
-        model.learn(total_timesteps=time_steps, reset_num_timesteps=False)
+        model.learn(total_timesteps=time_steps, reset_num_timesteps=False, tb_log_name=tb_log_name)
         if e % saving_interval == 0:
             output_path = f"{output_dir}{e}"
             model.save(output_path)

@@ -5,7 +5,6 @@ from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.envs.mujoco.humanoid_v4 import HumanoidEnv, mass_center, DEFAULT_CAMERA_CONFIG
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 class CustomHumanoidEnv(HumanoidEnv):
     def __init__(
             self,
@@ -13,7 +12,7 @@ class CustomHumanoidEnv(HumanoidEnv):
             ctrl_cost_weight=0.1,
             healthy_reward=5.0,
             terminate_when_unhealthy=True,
-            healthy_z_range=(1.0, 2.0),
+            healthy_z_range=(0.4, 2.0),
             reset_noise_scale=1e-2,
             exclude_current_positions_from_observation=True,
             **kwargs,
@@ -32,6 +31,14 @@ class CustomHumanoidEnv(HumanoidEnv):
 
         # ADDED {
         self.target_direction = np.array([0.0, 0.0])
+        self.DIR = {
+            0: [1, 0],
+            1: [-1, 0],
+            2: [0, 1],
+            3: [0, -1],
+            # 4: [0, 0],
+        }
+        # self.target_speed = 0.0
         # }
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
@@ -68,6 +75,8 @@ class CustomHumanoidEnv(HumanoidEnv):
             default_camera_config=DEFAULT_CAMERA_CONFIG,
             **kwargs,
         )
+
+        self.steps = 0
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -109,19 +118,23 @@ class CustomHumanoidEnv(HumanoidEnv):
 
         observation = self._get_obs()
 
+        self.steps = 0
+
         # ADDED {
-        DIR = {
-            0: [1, 0],
-            1: [-1, 0],
-            2: [0, 1],
-            3: [0, -1],
-            # 4: [0, 0],
-        }
-        self.target_direction = np.array(DIR[np.random.choice(np.arange(4))])
-        print("Reset Direction:", self.target_direction)
+        self.target_direction = np.array(self.DIR[np.random.choice(np.arange(4))])
+        # self.target_direction = np.array([1, 0])
+        # print("Reset Direction:", self.target_direction)
         # print("target_velocity:", self.target_velocity)
+
+        # SPEED_RANGE = [0.5, 2.0]
+        # self.target_speed = np.random.uniform(low=SPEED_RANGE[0], high=SPEED_RANGE[1])
+        # print("Reset Speed:", self.target_speed)
+
         # }
         return observation
+    
+    def set_target(self, t):
+        self.target_direction = t
 
     def step(self, action):
         xy_position_before = mass_center(self.model, self.data)
@@ -133,6 +146,18 @@ class CustomHumanoidEnv(HumanoidEnv):
 
         ctrl_cost = self.control_cost(action)
 
+        # if self.steps == 250:
+        #     self.set_target(np.array(self.DIR[np.random.choice(np.arange(4))]))
+
+        obs = self._get_obs()
+        torso_height = obs[0]
+        pelvis_height = self.get_body_com("pelvis")[2]
+        # print(pelvis_height)
+        crouch_weight = 20.0
+        # crouch_reward = crouch_weight * float(torso_height < 0.7)
+        # standing_penalty = -crouch_weight * max(0, torso_height - 0.7)
+        standing_penalty = -crouch_weight * abs(pelvis_height - 0.55)
+
         # ADDED {
         # cos_sim = cosine_similarity(xy_velocity.reshape(1, -1), self.target_velocity.reshape(1, -1))[0][0]
         # magnitude_diff = np.abs(np.linalg.norm(xy_velocity) - np.linalg.norm(self.target_velocity))
@@ -140,15 +165,29 @@ class CustomHumanoidEnv(HumanoidEnv):
         # forward_reward = self._forward_reward_weight * velocity_reward
         forward_reward = 2 * cosine_similarity(xy_velocity.reshape(1, -1), self.target_direction.reshape(1, -1))[0][0]
         # }
-        # forward_reward = self._forward_reward_weight * x_velocity
+        
         healthy_reward = self.healthy_reward
 
         rewards = forward_reward + healthy_reward
+        rewards += standing_penalty
+
+        bend_weight = 10.0
+        bend_penalty = -bend_weight * (max(0, 0.05 - obs[3]) + max(0, obs[3] - 0.5))
+        rewards += bend_penalty
+
+        lean_weight = 5.0
+        lean_penalty = -lean_weight * abs(obs[7])
+        rewards += lean_penalty
+
+        gait_weight = 5.0
+        gait_length = np.linalg.norm((self.get_body_com("left_foot")[:2] - self.get_body_com("right_foot")[:2]))
+        gait_penalty = -gait_weight * max(0,  gait_length - 0.3)
+        rewards += gait_penalty
 
         observation = self._get_obs()
         reward = rewards - ctrl_cost
         terminated = self.terminated
-        info = {
+        self.info = {
             "reward_linvel": forward_reward,
             "reward_quadctrl": -ctrl_cost,
             "reward_alive": healthy_reward,
@@ -158,8 +197,15 @@ class CustomHumanoidEnv(HumanoidEnv):
             "x_velocity": x_velocity,
             "y_velocity": y_velocity,
             "forward_reward": forward_reward,
+            "standing_penalty": standing_penalty,
+            "bend_penalty": bend_penalty,
+            "lean_penalty": lean_penalty,
+            "gait_penalty": gait_penalty
         }
+
+        self.steps += 1
+
         # print(info, reward, cos_sim, magnitude_diff)
         if self.render_mode == "human":
             self.render()
-        return observation, reward, terminated, False, info
+        return observation, reward, terminated, False, self.info
